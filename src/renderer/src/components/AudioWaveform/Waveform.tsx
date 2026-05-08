@@ -63,18 +63,26 @@ export function AudioWaveform() {
 
       setLoading(true)
       try {
-        // We use base64 data URL to load local file in renderer
-        const dataUrl = await (window as any).api.readFileAsBase64(audio.path)
+        const buffer = await (window as any).api.readFileBuffer(audio.path)
+        if (!isMounted) return
         
-        await wavesurferRef.current.load(dataUrl)
+        // Convert Uint8Array to Blob to avoid passing giant base64 strings
+        const blob = new Blob([buffer])
+        const objectUrl = URL.createObjectURL(blob)
+        
+        await wavesurferRef.current.load(objectUrl)
         
         // Detect beats
-        const beats = await detectBeats(dataUrl)
-        setBeatData(beats)
+        const beats = await detectBeats(objectUrl)
+        if (isMounted) {
+          setBeatData(beats)
+        }
+        
+        // Cleanup object URL later if needed, but keeping it alive for waveform interaction is safe.
       } catch (e) {
         console.error('Failed to load audio or detect beats:', e)
       } finally {
-        setLoading(false)
+        if (isMounted) setLoading(false)
       }
     }
 
