@@ -34,19 +34,54 @@ export function PreviewArea() {
   return (
     <div className="preview-area">
       {selectedImage?.thumbnailDataUrl ? (
-        <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <img
-            src={selectedImage.thumbnailDataUrl}
-            alt={selectedImage.name}
-            onClick={handleImageClick}
-            style={{
-              maxWidth: '100%',
-              maxHeight: '100%',
-              objectFit: 'contain',
-              borderRadius: 'var(--radius-md)',
-              cursor: 'crosshair'
-            }}
-          />
+        <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+          {/* Inner container that wraps the image tightly */}
+          <div style={{ position: 'relative', maxWidth: '100%', maxHeight: '100%', display: 'flex' }}>
+            <img
+              src={selectedImage.thumbnailDataUrl}
+              alt={selectedImage.name}
+              onClick={handleImageClick}
+              style={{
+                maxWidth: '100%',
+                maxHeight: '100%',
+                objectFit: 'contain',
+                borderRadius: 'var(--radius-md)',
+                cursor: 'crosshair'
+              }}
+            />
+            
+            {/* Focus point indicator - Now relative to the image container */}
+            {activeClip?.focusPoint && (
+              <div
+                style={{
+                  position: 'absolute',
+                  left: `${activeClip.focusPoint.x * 100}%`,
+                  top: `${activeClip.focusPoint.y * 100}%`,
+                  width: '24px',
+                  height: '24px',
+                  border: '2px solid #ffc800',
+                  borderRadius: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  boxShadow: '0 0 15px rgba(255, 200, 0, 0.6)',
+                  pointerEvents: 'none',
+                  zIndex: 20
+                }}
+              >
+                {/* Crosshair lines for professional feel */}
+                <div style={{ position: 'absolute', top: '50%', left: '-4px', right: '-4px', height: '1px', background: '#ffc800' }} />
+                <div style={{ position: 'absolute', left: '50%', top: '-4px', bottom: '-4px', width: '1px', background: '#ffc800' }} />
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: '8px',
+                    background: '#ffc800',
+                    borderRadius: '50%'
+                  }}
+                />
+              </div>
+            )}
+          </div>
+
           {/* Motion type badge */}
           {activeClip && (
             <div
@@ -60,36 +95,11 @@ export function PreviewArea() {
                 borderRadius: 'var(--radius-full)',
                 fontSize: 'var(--fs-xs)',
                 color: 'var(--accent-blue)',
-                fontWeight: 600
+                fontWeight: 600,
+                zIndex: 30
               }}
             >
               🎬 {activeClip.motionType}
-            </div>
-          )}
-          {/* Focus point indicator */}
-          {activeClip?.focusPoint && (
-            <div
-              style={{
-                position: 'absolute',
-                left: `${activeClip.focusPoint.x * 100}%`,
-                top: `${activeClip.focusPoint.y * 100}%`,
-                width: '20px',
-                height: '20px',
-                border: '2px solid var(--color-keyframe)',
-                borderRadius: '50%',
-                transform: 'translate(-50%, -50%)',
-                boxShadow: '0 0 12px var(--color-keyframe-glow)',
-                pointerEvents: 'none'
-              }}
-            >
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: '6px',
-                  background: 'var(--color-keyframe)',
-                  borderRadius: '50%'
-                }}
-              />
             </div>
           )}
         </div>
