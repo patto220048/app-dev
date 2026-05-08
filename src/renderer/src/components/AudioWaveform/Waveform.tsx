@@ -54,6 +54,7 @@ export function AudioWaveform() {
 
   // Load audio and detect beats
   useEffect(() => {
+    let isMounted = true
     const loadAudio = async () => {
       if (!audio || !wavesurferRef.current) {
         wavesurferRef.current?.empty()
@@ -87,6 +88,9 @@ export function AudioWaveform() {
     }
 
     loadAudio()
+    return () => {
+      isMounted = false
+    }
   }, [audio, setBeatData])
 
   // Sync playback position from store
