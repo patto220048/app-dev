@@ -1,0 +1,111 @@
+{
+  "app": {
+    "name": "SpeedRamp AI",
+    "tagline": "AI-Powered Speed Ramp Video Creator"
+  },
+  "header": {
+    "newProject": "New",
+    "open": "Open",
+    "save": "Save",
+    "export": "Export",
+    "settings": "Settings"
+  },
+  "sidebar": {
+    "media": "Media Library",
+    "images": "Images",
+    "audio": "Audio",
+    "importImages": "Import Images",
+    "importAudio": "Import Audio",
+    "noImages": "No images imported",
+    "noAudio": "No audio imported",
+    "dragDrop": "Drag & drop files here"
+  },
+  "import": {
+    "title": "Import Media",
+    "dropImages": "Drop images here",
+    "dropAudio": "Drop audio here",
+    "supported": "PNG, JPG, WEBP",
+    "supportedAudio": "MP3, WAV, OGG",
+    "or": "or",
+    "browse": "Browse Files"
+  },
+  "timeline": {
+    "title": "Timeline",
+    "addTrack": "Add Track",
+    "removeTrack": "Remove",
+    "track": "Track",
+    "videoTrack": "Video",
+    "audioTrack": "Audio",
+    "speedCurve": "Speed Curve",
+    "beats": "Beats",
+    "noClips": "Add images to timeline",
+    "autoArrange": "Auto Arrange",
+    "snapToBeats": "Snap to Beats"
+  },
+  "curve": {
+    "title": "Speed Curve",
+    "presets": "Presets",
+    "easeIn": "Ease In",
+    "easeOut": "Ease Out",
+    "easeInOut": "Ease In-Out",
+    "beatSync": "Beat Sync",
+    "bounce": "Bounce",
+    "smooth": "Smooth",
+    "linear": "Linear",
+    "custom": "Custom",
+    "speed": "Speed",
+    "duration": "Duration"
+  },
+  "motion": {
+    "title": "Motion Control",
+    "type": "Motion Type",
+    "panLeft": "Pan Left",
+    "panRight": "Pan Right",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "dolly": "Dolly",
+    "orbit": "Orbit",
+    "trackSubject": "Track Subject",
+    "focusPoint": "Focus Point",
+    "clickToSet": "Click on image to set focus point",
+    "promptPreview": "Motion Prompt Preview"
+  },
+  "preview": {
+    "title": "Preview",
+    "play": "Play",
+    "pause": "Pause",
+    "stop": "Stop",
+    "noContent": "Import media to get started",
+    "generating": "Generating AI clips..."
+  },
+  "export": {
+    "title": "Export Video",
+    "resolution": "Resolution",
+    "format": "Format",
+    "quality": "Quality",
+    "high": "High",
+    "medium": "Medium",
+    "progress": "Exporting...",
+    "success": "Export complete!",
+    "cancel": "Cancel",
+    "start": "Start Export"
+  },
+  "settings": {
+    "title": "Settings",
+    "apiProvider": "AI Provider",
+    "apiKey": "API Key",
+    "apiKeyPlaceholder": "Enter your API key",
+    "language": "Language",
+    "save": "Save",
+    "cancel": "Cancel",
+    "fal": "fal.ai (Seedance 2.0)",
+    "replicate": "Replicate (Wan2.1)"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "close": "Close",
+    "loading": "Loading..."
+  }
+}

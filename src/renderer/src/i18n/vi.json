@@ -1,0 +1,111 @@
+{
+  "app": {
+    "name": "SpeedRamp AI",
+    "tagline": "Tạo Video Speed Ramp bằng AI"
+  },
+  "header": {
+    "newProject": "Mới",
+    "open": "Mở",
+    "save": "Lưu",
+    "export": "Xuất",
+    "settings": "Cài đặt"
+  },
+  "sidebar": {
+    "media": "Thư viện Media",
+    "images": "Hình ảnh",
+    "audio": "Âm thanh",
+    "importImages": "Nhập hình ảnh",
+    "importAudio": "Nhập âm thanh",
+    "noImages": "Chưa có hình ảnh",
+    "noAudio": "Chưa có âm thanh",
+    "dragDrop": "Kéo thả tệp vào đây"
+  },
+  "import": {
+    "title": "Nhập Media",
+    "dropImages": "Thả hình ảnh vào đây",
+    "dropAudio": "Thả âm thanh vào đây",
+    "supported": "PNG, JPG, WEBP",
+    "supportedAudio": "MP3, WAV, OGG",
+    "or": "hoặc",
+    "browse": "Chọn tệp"
+  },
+  "timeline": {
+    "title": "Timeline",
+    "addTrack": "Thêm Track",
+    "removeTrack": "Xóa",
+    "track": "Track",
+    "videoTrack": "Video",
+    "audioTrack": "Âm thanh",
+    "speedCurve": "Đường cong tốc độ",
+    "beats": "Nhịp",
+    "noClips": "Thêm hình vào timeline",
+    "autoArrange": "Tự động sắp xếp",
+    "snapToBeats": "Bắt nhịp"
+  },
+  "curve": {
+    "title": "Đường cong tốc độ",
+    "presets": "Mẫu có sẵn",
+    "easeIn": "Tăng dần",
+    "easeOut": "Giảm dần",
+    "easeInOut": "Tăng-Giảm",
+    "beatSync": "Đồng bộ nhịp",
+    "bounce": "Nảy",
+    "smooth": "Mượt",
+    "linear": "Tuyến tính",
+    "custom": "Tùy chỉnh",
+    "speed": "Tốc độ",
+    "duration": "Thời lượng"
+  },
+  "motion": {
+    "title": "Điều khiển chuyển động",
+    "type": "Loại chuyển động",
+    "panLeft": "Lia trái",
+    "panRight": "Lia phải",
+    "zoomIn": "Phóng to",
+    "zoomOut": "Thu nhỏ",
+    "dolly": "Dolly",
+    "orbit": "Xoay quanh",
+    "trackSubject": "Theo dõi chủ thể",
+    "focusPoint": "Điểm lấy nét",
+    "clickToSet": "Nhấp vào ảnh để chọn điểm lấy nét",
+    "promptPreview": "Xem trước lệnh chuyển động"
+  },
+  "preview": {
+    "title": "Xem trước",
+    "play": "Phát",
+    "pause": "Tạm dừng",
+    "stop": "Dừng",
+    "noContent": "Nhập media để bắt đầu",
+    "generating": "Đang tạo clip AI..."
+  },
+  "export": {
+    "title": "Xuất Video",
+    "resolution": "Độ phân giải",
+    "format": "Định dạng",
+    "quality": "Chất lượng",
+    "high": "Cao",
+    "medium": "Trung bình",
+    "progress": "Đang xuất...",
+    "success": "Xuất thành công!",
+    "cancel": "Hủy",
+    "start": "Bắt đầu xuất"
+  },
+  "settings": {
+    "title": "Cài đặt",
+    "apiProvider": "Nhà cung cấp AI",
+    "apiKey": "Khóa API",
+    "apiKeyPlaceholder": "Nhập khóa API của bạn",
+    "language": "Ngôn ngữ",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "fal": "fal.ai (Seedance 2.0)",
+    "replicate": "Replicate (Wan2.1)"
+  },
+  "common": {
+    "cancel": "Hủy",
+    "confirm": "Xác nhận",
+    "delete": "Xóa",
+    "close": "Đóng",
+    "loading": "Đang tải..."
+  }
+}
