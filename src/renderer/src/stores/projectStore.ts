@@ -41,6 +41,10 @@ interface ProjectState {
   // Zoom
   pixelsPerSecond: number
   setPixelsPerSecond: (pps: number) => void
+
+  // Aspect Ratio
+  aspectRatio: '16:9' | '9:16' | '1:1'
+  setAspectRatio: (ratio: '16:9' | '9:16' | '1:1') => void
 }
 
 const DEFAULT_CLIP_DURATION = 5 // seconds
@@ -60,6 +64,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   isPlaying: false,
   totalDuration: 30,
   pixelsPerSecond: 50,
+  aspectRatio: '16:9',
 
   addImages: (files) =>
     set((state) => ({ images: [...state.images, ...files] })),
@@ -212,5 +217,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     set({ clips: newClips })
   },
 
-  setPixelsPerSecond: (pps) => set({ pixelsPerSecond: Math.max(10, Math.min(200, pps)) })
+  setPixelsPerSecond: (pps) => set({ pixelsPerSecond: Math.max(10, Math.min(200, pps)) }),
+  
+  setAspectRatio: (ratio) => set({ aspectRatio: ratio })
 }))

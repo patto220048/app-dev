@@ -6,7 +6,7 @@ import { useProjectStore } from '../../stores/projectStore'
 export function Header() {
   const { t } = useTranslation()
   const { setShowSettings } = useSettingsStore()
-  const { clips, images, audio, beatData, tracks } = useProjectStore()
+  const { clips, images, audio, beatData, tracks, aspectRatio, setAspectRatio } = useProjectStore()
   const [exporting, setExporting] = useState(false)
 
   const handleNewProject = () => {
@@ -81,7 +81,8 @@ export function Header() {
         }),
         audioPath: audio?.path,
         outputPath,
-        resolution: '1080p' // TODO: get from settings
+        resolution: '1080p',
+        aspectRatio
       }
 
       await (window as any).api.exportProject(options)
@@ -119,6 +120,32 @@ export function Header() {
         <button className="btn btn-sm" onClick={handleSave}>
           💾 {t('header.save')}
         </button>
+      </div>
+
+      <div style={{ flex: 1 }} />
+
+      {/* Aspect Ratio Selector */}
+      <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: 'var(--radius-md)', padding: '2px', border: '1px solid var(--border-subtle)', marginRight: 'var(--sp-4)' }}>
+        {(['16:9', '9:16', '1:1'] as const).map(ratio => (
+          <button
+            key={ratio}
+            onClick={() => setAspectRatio(ratio)}
+            style={{
+              padding: '4px 12px',
+              border: 'none',
+              background: aspectRatio === ratio ? 'var(--accent-primary)' : 'transparent',
+              color: aspectRatio === ratio ? '#000' : 'var(--text-secondary)',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '11px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              minWidth: '50px'
+            }}
+          >
+            {ratio}
+          </button>
+        ))}
       </div>
 
       <div className="header-actions">
