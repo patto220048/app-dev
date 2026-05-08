@@ -476,9 +476,11 @@ h1, h2, h3, h4, h5, h6 {
   top: 0;
   bottom: 0;
   width: 1px;
-  background: var(--color-beat);
-  opacity: 0.3;
+  background: #3c9b74; /* Success Green */
+  opacity: 0.8;
   pointer-events: none;
+  box-shadow: 0 0 4px rgba(60, 155, 116, 0.4);
+  z-index: 5;
 }
 
 .curve-editor-container {

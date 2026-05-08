@@ -10,6 +10,7 @@ const api = {
   // File operations
   readFileAsBase64: (path: string) => ipcRenderer.invoke('file:readAsBase64', path),
   readFileBuffer: (path: string) => ipcRenderer.invoke('file:readBuffer', path),
+  readDataUrl: (path: string) => ipcRenderer.invoke('file:readDataUrl', path),
 
   // Project
   saveProject: (data: string) => ipcRenderer.invoke('project:save', data),

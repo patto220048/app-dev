@@ -1,6 +1,7 @@
 "use strict";
 const electron = require("electron");
 const path = require("path");
+const url = require("url");
 const promises = require("fs/promises");
 const uuid = require("uuid");
 const fs = require("fs");
@@ -140,8 +141,43 @@ function registerIpcHandlers() {
     return `data:${mime};base64,${buffer.toString("base64")}`;
   });
   electron.ipcMain.handle("file:readBuffer", async (_event, filePath) => {
-    const buffer = await promises.readFile(filePath);
-    return buffer;
+    let targetPath = filePath;
+    if (filePath.startsWith("media://")) targetPath = filePath.slice("media://".length);
+    if (filePath.startsWith("file://")) targetPath = new URL(filePath).pathname.replace(/^\/([A-Z]:)/, "$1");
+    let finalPath = targetPath;
+    try {
+      await promises.access(targetPath);
+    } catch {
+      try {
+        finalPath = decodeURIComponent(targetPath);
+        await promises.access(finalPath);
+      } catch {
+        finalPath = targetPath;
+      }
+    }
+    const buffer = await promises.readFile(finalPath);
+    return new Uint8Array(buffer);
+  });
+  electron.ipcMain.handle("file:readDataUrl", async (_event, filePath) => {
+    let targetPath = filePath;
+    if (filePath.startsWith("media://")) targetPath = filePath.slice("media://".length);
+    let finalPath = targetPath;
+    try {
+      await promises.access(targetPath);
+    } catch {
+      try {
+        finalPath = decodeURIComponent(targetPath);
+        await promises.access(finalPath);
+      } catch {
+        finalPath = targetPath;
+      }
+    }
+    const buffer = await promises.readFile(finalPath);
+    const ext = finalPath.split(".").pop()?.toLowerCase();
+    let mime = "audio/mpeg";
+    if (ext === "wav") mime = "audio/wav";
+    else if (ext === "m4a") mime = "audio/mp4";
+    return `data:${mime};base64,${buffer.toString("base64")}`;
   });
   electron.ipcMain.handle("app:getDataPath", () => {
     return electron.app.getPath("userData");
@@ -226,10 +262,18 @@ function createWindow() {
     mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
   }
 }
+electron.protocol.registerSchemesAsPrivileged([
+  { scheme: "media", privileges: { secure: true, standard: true, supportFetchAPI: true, stream: true } }
+]);
 electron.app.whenReady().then(() => {
   electronApp.setAppUserModelId("com.speedramp.ai");
   electron.app.on("browser-window-created", (_, window) => {
     optimizer.watchWindowShortcuts(window);
+  });
+  electron.protocol.handle("media", (request) => {
+    let path2 = decodeURIComponent(request.url.slice("media://".length));
+    if (path2.startsWith("/")) path2 = path2.slice(1);
+    return electron.net.fetch(url.pathToFileURL(path2).toString());
   });
   registerIpcHandlers();
   createWindow();

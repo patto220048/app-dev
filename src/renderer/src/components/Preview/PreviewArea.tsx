@@ -3,12 +3,18 @@ import { useProjectStore } from '../../stores/projectStore'
 
 export function PreviewArea() {
   const { t } = useTranslation()
-  const { images, selectedClipId, clips, updateClip } = useProjectStore()
+  const { images, selectedClipId, clips, updateClip, isPlaying, setIsPlaying, currentTime, totalDuration } = useProjectStore()
 
   const selectedClip = clips.find((c) => c.id === selectedClipId)
   const selectedImage = selectedClip
     ? images.find((i) => i.id === selectedClip.mediaId)
     : null
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60)
+    const s = Math.floor(seconds % 60)
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+  }
 
   const handleImageClick = (e: React.MouseEvent<HTMLImageElement>) => {
     if (!selectedClip) return
@@ -128,15 +134,16 @@ export function PreviewArea() {
             border: 'none',
             borderRadius: '50%'
           }}
-          title={t('preview.play')}
+          onClick={() => setIsPlaying(!isPlaying)}
+          title={isPlaying ? t('preview.pause') : t('preview.play')}
         >
-          ▶
+          {isPlaying ? '⏸' : '▶'}
         </button>
         <button className="btn btn-icon btn-sm" title={t('preview.stop')}>
           ⏭
         </button>
         <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-secondary)', marginLeft: '8px', fontVariantNumeric: 'tabular-nums' }}>
-          00:00 / 00:30
+          {formatTime(currentTime)} / {formatTime(totalDuration)}
         </span>
       </div>
     </div>

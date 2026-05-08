@@ -86,6 +86,7 @@ const api = {
   // File operations
   readFileAsBase64: (path) => electron.ipcRenderer.invoke("file:readAsBase64", path),
   readFileBuffer: (path) => electron.ipcRenderer.invoke("file:readBuffer", path),
+  readDataUrl: (path) => electron.ipcRenderer.invoke("file:readDataUrl", path),
   // Project
   saveProject: (data) => electron.ipcRenderer.invoke("project:save", data),
   loadProject: () => electron.ipcRenderer.invoke("project:load"),

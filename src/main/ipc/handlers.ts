@@ -1,5 +1,5 @@
 import { ipcMain, dialog, app } from 'electron'
-import { readFile, writeFile, mkdir } from 'fs/promises'
+import { readFile, writeFile, mkdir, access } from 'fs/promises'
 import { join, basename, extname } from 'path'
 import { v4 as uuidv4 } from 'uuid'
 import { existsSync, copyFileSync } from 'fs'
@@ -57,8 +57,40 @@ export function registerIpcHandlers(): void {
 
   // Read file as buffer
   ipcMain.handle('file:readBuffer', async (_event, filePath: string) => {
-    const buffer = await readFile(filePath)
-    return buffer
+    let targetPath = filePath
+    if (filePath.startsWith('media://')) targetPath = filePath.slice('media://'.length)
+    if (filePath.startsWith('file://')) targetPath = new URL(filePath).pathname.replace(/^\/([A-Z]:)/, '$1')
+    
+    // Try to find the file
+    let finalPath = targetPath
+    try { await access(targetPath) } 
+    catch {
+      try { finalPath = decodeURIComponent(targetPath); await access(finalPath) }
+      catch { finalPath = targetPath }
+    }
+
+    const buffer = await readFile(finalPath)
+    return new Uint8Array(buffer)
+  })
+
+  ipcMain.handle('file:readDataUrl', async (_event, filePath: string) => {
+    let targetPath = filePath
+    if (filePath.startsWith('media://')) targetPath = filePath.slice('media://'.length)
+    
+    let finalPath = targetPath
+    try { await access(targetPath) } 
+    catch {
+      try { finalPath = decodeURIComponent(targetPath); await access(finalPath) }
+      catch { finalPath = targetPath }
+    }
+
+    const buffer = await readFile(finalPath)
+    const ext = finalPath.split('.').pop()?.toLowerCase()
+    let mime = 'audio/mpeg'
+    if (ext === 'wav') mime = 'audio/wav'
+    else if (ext === 'm4a') mime = 'audio/mp4'
+    
+    return `data:${mime};base64,${buffer.toString('base64')}`
   })
 
   // Get app data path

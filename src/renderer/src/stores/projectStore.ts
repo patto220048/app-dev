@@ -139,7 +139,15 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   setBeatData: (data) => set({ beatData: data }),
 
   setCurrentTime: (time) => set({ currentTime: time }),
-  setIsPlaying: (playing) => set({ isPlaying: playing }),
+  setIsPlaying: (playing) => {
+    set({ isPlaying: playing })
+    // Dispatch global events for direct audio control (bypasses browser autoplay restrictions)
+    if (playing) {
+      window.dispatchEvent(new CustomEvent('app-play'))
+    } else {
+      window.dispatchEvent(new CustomEvent('app-pause'))
+    }
+  },
 
   autoArrangeToBeats: () => {
     const { images, beatData, tracks } = get()

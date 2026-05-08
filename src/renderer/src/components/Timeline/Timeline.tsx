@@ -27,8 +27,9 @@ export function Timeline() {
     offsetX: number
     startTrack: number
   } | null>(null)
+  const [isScrubbing, setIsScrubbing] = useState(false)
 
-  const totalDuration = 60 // seconds
+  const totalDuration = beatData ? Math.ceil(beatData.duration) : 60 // seconds
   const totalWidth = totalDuration * pixelsPerSecond
 
   const handleWheel = useCallback(
@@ -65,6 +66,10 @@ export function Timeline() {
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
+      if (isScrubbing) {
+        handleSeek(e)
+        return
+      }
       if (!dragging) return
       const mouseX =
         e.clientX -
@@ -92,17 +97,32 @@ export function Timeline() {
         trackIndex: newTrackIndex
       })
     },
-    [dragging, pixelsPerSecond, tracks.length, updateClip]
+    [dragging, isScrubbing, pixelsPerSecond, tracks.length, updateClip]
   )
 
   const handleMouseUp = () => {
     setDragging(null)
+    setIsScrubbing(false)
+  }
+
+  const handleSeek = (e: React.MouseEvent | React.DragEvent | MouseEvent) => {
+    const rect = tracksAreaRef.current?.getBoundingClientRect()
+    if (!rect) return
+    const mouseX = e.clientX - rect.left + (tracksAreaRef.current?.scrollLeft || 0)
+    const newTime = Math.max(0, mouseX / pixelsPerSecond)
+    useProjectStore.getState().setCurrentTime(newTime)
   }
 
   const handleTrackAreaClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget || (e.target as HTMLElement).classList.contains('track-row')) {
+    if (e.target === e.currentTarget || (e.target as HTMLElement).classList.contains('track-row') || (e.target as HTMLElement).classList.contains('timeline-ruler')) {
+      handleSeek(e)
       selectClip(null)
     }
+  }
+
+  const handleRulerMouseDown = (e: React.MouseEvent) => {
+    setIsScrubbing(true)
+    handleSeek(e)
   }
 
   const videoTracks = tracks.filter((t) => t.type === 'video')
@@ -248,7 +268,7 @@ export function Timeline() {
           }}
         >
           {/* Ruler */}
-          <div className="timeline-ruler" style={{ width: `${totalWidth}px` }}>
+          <div className="timeline-ruler" style={{ width: `${totalWidth}px` }} onMouseDown={handleRulerMouseDown}>
             {rulerMarks}
           </div>
 
