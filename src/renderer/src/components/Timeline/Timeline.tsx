@@ -97,7 +97,7 @@ export function Timeline() {
   const handleClipMouseDown = (e: React.MouseEvent, clipId: string, trackIndex: number) => {
     e.stopPropagation()
     selectClip(clipId)
-    
+
     const rect = e.currentTarget.getBoundingClientRect()
     const mouseXInClip = e.clientX - rect.left
     const handleSize = 10 // Increase for easier clicking
@@ -160,7 +160,7 @@ export function Timeline() {
 
       if (dragging.type === 'move') {
         let newStartTime = (mouseX - dragging.offsetX) / pixelsPerSecond
-        
+
         // Snap start edge
         const snappedStart = findSnap(newStartTime)
         if (snappedStart !== null) {
@@ -202,11 +202,11 @@ export function Timeline() {
           newStartTime = snappedStart
           bestSnap = snappedStart
         }
-        
+
         newStartTime = Math.min(dragging.initialStartTime + dragging.initialDuration - 0.1, newStartTime)
         const durationChange = dragging.initialStartTime - newStartTime
         const newDuration = dragging.initialDuration + durationChange
-        
+
         updateClip(dragging.clipId, {
           startTime: bestSnap !== null ? newStartTime : Math.round(newStartTime * 20) / 20,
           duration: Math.max(0.1, Math.round(newDuration * 20) / 20)
@@ -218,7 +218,65 @@ export function Timeline() {
     [dragging, isScrubbing, pixelsPerSecond, tracks.length, updateClip, currentTime, beatData, clips]
   )
 
+  const resolveOverlaps = (movedClipId: string) => {
+    const movedClip = clips.find(c => c.id === movedClipId)
+    if (!movedClip) return
+
+    const movedStart = movedClip.startTime
+    const movedEnd = movedStart + movedClip.duration
+    const trackIndex = movedClip.trackIndex
+
+    let updatedClips = [...clips]
+    let hasChanges = false
+
+    clips.forEach(other => {
+      if (other.id === movedClipId || other.trackIndex !== trackIndex) return
+
+      const otherStart = other.startTime
+      const otherEnd = otherStart + other.duration
+
+      // 1. Completely covered by moved clip
+      if (movedStart <= otherStart && movedEnd >= otherEnd) {
+        updatedClips = updatedClips.filter(c => c.id !== other.id)
+        hasChanges = true
+      }
+      // 2. Overlap at the end of other clip
+      else if (movedStart > otherStart && movedStart < otherEnd && movedEnd >= otherEnd) {
+        const newDuration = movedStart - otherStart
+        updatedClips = updatedClips.map(c =>
+          c.id === other.id ? { ...c, duration: Math.max(0.1, newDuration) } : c
+        )
+        hasChanges = true
+      }
+      // 3. Overlap at the start of other clip
+      else if (movedEnd > otherStart && movedEnd < otherEnd && movedStart <= otherStart) {
+        const newStartTime = movedEnd
+        const newDuration = otherEnd - newStartTime
+        updatedClips = updatedClips.map(c =>
+          c.id === other.id ? { ...c, startTime: newStartTime, duration: Math.max(0.1, newDuration) } : c
+        )
+        hasChanges = true
+      }
+      // 4. Moved clip is inside other clip (Split or trim one side)
+      // For simplicity, we'll trim the end of the other clip to where moved clip starts
+      else if (movedStart > otherStart && movedEnd < otherEnd) {
+        const newDuration = movedStart - otherStart
+        updatedClips = updatedClips.map(c =>
+          c.id === other.id ? { ...c, duration: Math.max(0.1, newDuration) } : c
+        )
+        hasChanges = true
+      }
+    })
+
+    if (hasChanges) {
+      useProjectStore.setState({ clips: updatedClips })
+    }
+  }
+
   const handleMouseUp = () => {
+    if (dragging) {
+      resolveOverlaps(dragging.clipId)
+    }
     setDragging(null)
     setIsScrubbing(false)
     setSnapLine(null)
@@ -249,9 +307,9 @@ export function Timeline() {
     const clickTime = mouseX / pixelsPerSecond
 
     // Check if we clicked on a clip first
-    const clickedClip = clips.find(c => 
-      c.trackIndex === trackIndex && 
-      clickTime >= c.startTime && 
+    const clickedClip = clips.find(c =>
+      c.trackIndex === trackIndex &&
+      clickTime >= c.startTime &&
       clickTime < c.startTime + c.duration
     )
 
@@ -269,7 +327,7 @@ export function Timeline() {
     const trackClips = clips
       .filter(c => c.trackIndex === trackIndex)
       .sort((a, b) => a.startTime - b.startTime)
-    
+
     let gapStart = 0
     let targetGap: { start: number, end: number } | null = null
 
@@ -280,7 +338,7 @@ export function Timeline() {
       }
       gapStart = clip.startTime + clip.duration
     }
-    
+
     if (targetGap) {
       setContextMenu({
         x: e.clientX,
@@ -439,7 +497,7 @@ export function Timeline() {
                 if (!rect) return
                 const mouseX = e.clientX - rect.left + (tracksAreaRef.current?.scrollLeft || 0)
                 const mouseY = e.clientY - rect.top + (tracksAreaRef.current?.scrollTop || 0)
-                
+
                 const startTime = Math.max(0, mouseX / pixelsPerSecond)
                 const trackHeight = 44
                 const rulerHeight = 24
@@ -515,9 +573,8 @@ export function Timeline() {
                   return (
                     <div
                       key={clip.id}
-                      className={`timeline-clip ${
-                        selectedClipId === clip.id ? 'selected' : ''
-                      }`}
+                      className={`timeline-clip ${selectedClipId === clip.id ? 'selected' : ''
+                        }`}
                       style={{
                         left: `${clip.startTime * pixelsPerSecond}px`,
                         width: `${clip.duration * pixelsPerSecond}px`
@@ -529,7 +586,7 @@ export function Timeline() {
                     >
                       {/* Left Handle */}
                       <div className="clip-handle left" />
-                      
+
                       {img?.thumbnailDataUrl && (
                         <img
                           src={img.thumbnailDataUrl}
@@ -683,7 +740,7 @@ function SpeedCurvePreview({
     // Calculate time and value
     const clipStartX = clip.startTime * pixelsPerSecond
     const clipWidthX = clip.duration * pixelsPerSecond
-    
+
     let newTime = (mouseX - clipStartX) / clipWidthX
     newTime = Math.max(0, Math.min(1, newTime))
 
@@ -812,7 +869,7 @@ function SpeedCurvePreview({
                   cy={cy}
                   r={isSelected ? 6 : 3}
                   fill={isSelected ? 'var(--color-keyframe)' : 'var(--accent-primary)'}
-                  style={{ 
+                  style={{
                     filter: isSelected ? 'drop-shadow(0 0 4px var(--color-keyframe-glow))' : 'none',
                     cursor: isSelected ? 'move' : 'default'
                   }}
