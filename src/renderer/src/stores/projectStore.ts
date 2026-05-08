@@ -12,7 +12,7 @@ interface ProjectState {
 
   // Tracks
   tracks: TimelineTrack[]
-  addTrack: () => void
+  addTrack: (type?: 'video' | 'audio') => void
   removeTrack: (id: string) => void
 
   // Clips
@@ -51,7 +51,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   tracks: [
     { id: 'track-1', name: 'Video 1', type: 'video', visible: true, locked: false },
     { id: 'track-2', name: 'Video 2', type: 'video', visible: true, locked: false },
-    { id: 'track-3', name: 'Video 3', type: 'video', visible: true, locked: false }
+    { id: 'track-a1', name: 'Audio 1', type: 'audio', visible: true, locked: false }
   ],
   clips: [],
   selectedClipId: null,
@@ -72,16 +72,17 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 
   setAudio: (file) => set({ audio: file }),
 
-  addTrack: () =>
+  addTrack: (type: 'video' | 'audio' = 'video') =>
     set((state) => {
-      const num = state.tracks.filter((t) => t.type === 'video').length + 1
+      const num = state.tracks.filter((t) => t.type === type).length + 1
+      const prefix = type === 'video' ? 'Video' : 'Audio'
       return {
         tracks: [
           ...state.tracks,
           {
             id: uuidv4(),
-            name: `Video ${num}`,
-            type: 'video',
+            name: `${prefix} ${num}`,
+            type,
             visible: true,
             locked: false
           }
@@ -90,13 +91,16 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     }),
 
   removeTrack: (id) =>
-    set((state) => ({
-      tracks: state.tracks.filter((t) => t.id !== id),
-      clips: state.clips.filter((c) => {
-        const trackIdx = state.tracks.findIndex((t) => t.id === id)
-        return c.trackIndex !== trackIdx
-      })
-    })),
+    set((state) => {
+      const trackToRemove = state.tracks.find(t => t.id === id)
+      if (!trackToRemove) return state
+      
+      const trackIndex = state.tracks.indexOf(trackToRemove)
+      return {
+        tracks: state.tracks.filter((t) => t.id !== id),
+        clips: state.clips.filter((c) => c.trackIndex !== trackIndex)
+      }
+    }),
 
   addClip: (clip) => set((state) => ({ clips: [...state.clips, clip] })),
 

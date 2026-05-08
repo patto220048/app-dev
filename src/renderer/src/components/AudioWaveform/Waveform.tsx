@@ -4,13 +4,12 @@ import { useTranslation } from 'react-i18next'
 import { useProjectStore } from '../../stores/projectStore'
 import { detectBeats } from '../../utils/beat-detection'
 
-export function AudioWaveform() {
+export function AudioWaveform({ file }: { file: any }) {
   const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
   const wavesurferRef = useRef<WaveSurfer | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const { 
-    audio, 
     beatData, 
     setBeatData, 
     pixelsPerSecond, 
@@ -28,8 +27,8 @@ export function AudioWaveform() {
 
   // Consolidated initialization and loading
   useEffect(() => {
-    if (!containerRef.current || !audio) {
-      setStatus(audio ? 'Initializing...' : 'No audio')
+    if (!containerRef.current || !file) {
+      setStatus(file ? 'Initializing...' : 'No audio')
       return
     }
 
@@ -73,7 +72,7 @@ export function AudioWaveform() {
         wavesurferRef.current = ws
 
         // 2. Load Data
-        const dataUrl = await (window as any).api.readDataUrl(audio.path)
+        const dataUrl = await (window as any).api.readDataUrl(file.path)
         if (!isMounted) return
         
         setCurrentSrc(dataUrl)
@@ -102,7 +101,7 @@ export function AudioWaveform() {
       isMounted = false
       ws?.destroy()
     }
-  }, [audio, setBeatData]) // Only re-run when audio file changes
+  }, [file, setBeatData]) // Only re-run when file changes
 
   // Sync zoom
   useEffect(() => {
@@ -194,7 +193,7 @@ export function AudioWaveform() {
     }
   }, [isAudioLoaded])
 
-  if (!audio) {
+  if (!file) {
     return (
       <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-tertiary)', fontSize: 'var(--fs-xs)' }}>
         {t('timeline.noAudio', 'No audio track')}
