@@ -135,7 +135,7 @@ export function AudioWaveform() {
     }
   }, [currentTime, isAudioLoaded, isPlaying])
 
-  // Time tracking
+  // Global playback control
   useEffect(() => {
     const ws = wavesurferRef.current
     if (!ws || !isAudioLoaded) return
@@ -156,19 +156,43 @@ export function AudioWaveform() {
 
     window.addEventListener('app-play', handleGlobalPlay)
     window.addEventListener('app-pause', handleGlobalPause)
-
-    const onTimeUpdate = (time: number) => setCurrentTime(time)
-    const onFinish = () => { setIsPlaying(false); setCurrentTime(0) }
-    ws.on('timeupdate', onTimeUpdate)
-    ws.on('finish', onFinish)
     
     return () => {
       window.removeEventListener('app-play', handleGlobalPlay)
       window.removeEventListener('app-pause', handleGlobalPause)
+    }
+  }, [isAudioLoaded])
+
+  // Time tracking
+  useEffect(() => {
+    const ws = wavesurferRef.current
+    if (!ws || !isAudioLoaded) return
+
+    const onTimeUpdate = () => {
+      const time = ws.getCurrentTime()
+      setCurrentTime(time)
+    }
+    
+    const onFinish = () => { 
+      setIsPlaying(false)
+      setCurrentTime(0) 
+    }
+
+    ws.on('timeupdate', onTimeUpdate)
+    ws.on('finish', onFinish)
+    
+    return () => {
       ws.un('timeupdate', onTimeUpdate)
       ws.un('finish', onFinish)
     }
   }, [isAudioLoaded, setCurrentTime, setIsPlaying])
+
+  // Sync initial play state
+  useEffect(() => {
+    if (isAudioLoaded && isPlaying) {
+      window.dispatchEvent(new CustomEvent('app-play'))
+    }
+  }, [isAudioLoaded])
 
   if (!audio) {
     return (

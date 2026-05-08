@@ -110,7 +110,9 @@ export function Timeline() {
     if (!rect) return
     const mouseX = e.clientX - rect.left + (tracksAreaRef.current?.scrollLeft || 0)
     const newTime = Math.max(0, mouseX / pixelsPerSecond)
-    useProjectStore.getState().setCurrentTime(newTime)
+    const store = useProjectStore.getState()
+    store.setCurrentTime(newTime)
+    store.setIsPlaying(false) // Stop and seek to position
   }
 
   const handleTrackAreaClick = (e: React.MouseEvent) => {

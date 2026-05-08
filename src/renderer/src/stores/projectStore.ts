@@ -157,11 +157,29 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     const beats = beatData.beats
     const newClips: TimelineClip[] = []
 
+    // Smart stride calculation: try to keep clips between 1.5s and 4s
+    const bpm = beatData.bpm || 120
+    const beatDuration = 60 / bpm
+    let stride = 1
+    if (beatDuration < 0.5) stride = 4 // Fast music: every 4th beat
+    else if (beatDuration < 1.0) stride = 2 // Medium: every 2nd beat
+    
+    // Select the beats to use
+    const selectedBeats: number[] = []
+    for (let i = 0; i < beats.length; i += stride) {
+      selectedBeats.push(beats[i])
+    }
+
     images.forEach((img, i) => {
-      const beatIdx = i % beats.length
-      const startTime = beats[beatIdx] || i * DEFAULT_CLIP_DURATION
-      const nextBeat = beats[beatIdx + 1]
-      const duration = nextBeat ? Math.min(nextBeat - startTime, 10) : DEFAULT_CLIP_DURATION
+      // Use the selected beats, loop back if we run out of images vs beats
+      const beatIdx = i
+      if (beatIdx >= selectedBeats.length) return
+
+      const startTime = selectedBeats[beatIdx]
+      const nextBeatTime = selectedBeats[beatIdx + 1] || startTime + (beatDuration * stride)
+      const duration = nextBeatTime - startTime
+
+      // Alternate tracks for a professional look
       const trackIndex = i % videoTracks.length
 
       newClips.push({
@@ -169,19 +187,19 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         mediaId: img.id,
         trackIndex,
         startTime,
-        duration: Math.max(duration, 2),
+        duration: Math.max(duration, 0.5),
         name: img.name,
         thumbnailDataUrl: img.thumbnailDataUrl,
         aiStatus: 'idle',
-        motionType: 'zoomIn',
+        motionType: i % 2 === 0 ? 'zoomIn' : 'zoomOut', // Alternate motion
         speedCurve: {
           type: 'beatSync',
           keyframes: [
-            { time: 0, value: 0.5 },
-            { time: 0.3, value: 3 },
-            { time: 0.5, value: 1 },
-            { time: 0.7, value: 3 },
-            { time: 1, value: 0.5 }
+            { time: 0, value: 0.2 }, // Start slow
+            { time: 0.2, value: 3.5 }, // Quick burst at beat
+            { time: 0.5, value: 1.0 }, // Settle
+            { time: 0.8, value: 1.0 }, // Hold
+            { time: 1, value: 0.2 } // End slow
           ]
         }
       })

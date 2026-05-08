@@ -3,11 +3,16 @@ import { useProjectStore } from '../../stores/projectStore'
 
 export function PreviewArea() {
   const { t } = useTranslation()
-  const { images, selectedClipId, clips, updateClip, isPlaying, setIsPlaying, currentTime, totalDuration } = useProjectStore()
+  const { images, clips, isPlaying, setIsPlaying, currentTime, totalDuration, selectedClipId } = useProjectStore()
 
-  const selectedClip = clips.find((c) => c.id === selectedClipId)
-  const selectedImage = selectedClip
-    ? images.find((i) => i.id === selectedClip.mediaId)
+  // Find the clip at the current playhead position
+  // If multiple clips overlap, pick the one on the highest track index (top-most layer)
+  const activeClip = [...clips]
+    .filter(c => currentTime >= c.startTime && currentTime < c.startTime + c.duration)
+    .sort((a, b) => b.trackIndex - a.trackIndex)[0] || clips.find(c => c.id === selectedClipId)
+
+  const selectedImage = activeClip
+    ? images.find((i) => i.id === activeClip.mediaId)
     : null
 
   const formatTime = (seconds: number) => {
@@ -16,12 +21,14 @@ export function PreviewArea() {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
   }
 
+  const { updateClip } = useProjectStore()
+
   const handleImageClick = (e: React.MouseEvent<HTMLImageElement>) => {
-    if (!selectedClip) return
+    if (!activeClip) return
     const rect = e.currentTarget.getBoundingClientRect()
     const x = (e.clientX - rect.left) / rect.width
     const y = (e.clientY - rect.top) / rect.height
-    updateClip(selectedClip.id, { focusPoint: { x, y } })
+    updateClip(activeClip.id, { focusPoint: { x, y } })
   }
 
   return (
@@ -41,7 +48,7 @@ export function PreviewArea() {
             }}
           />
           {/* Motion type badge */}
-          {selectedClip && (
+          {activeClip && (
             <div
               style={{
                 position: 'absolute',
@@ -56,16 +63,16 @@ export function PreviewArea() {
                 fontWeight: 600
               }}
             >
-              🎬 {selectedClip.motionType}
+              🎬 {activeClip.motionType}
             </div>
           )}
           {/* Focus point indicator */}
-          {selectedClip?.focusPoint && (
+          {activeClip?.focusPoint && (
             <div
               style={{
                 position: 'absolute',
-                left: `${selectedClip.focusPoint.x * 100}%`,
-                top: `${selectedClip.focusPoint.y * 100}%`,
+                left: `${activeClip.focusPoint.x * 100}%`,
+                top: `${activeClip.focusPoint.y * 100}%`,
                 width: '20px',
                 height: '20px',
                 border: '2px solid var(--color-keyframe)',
