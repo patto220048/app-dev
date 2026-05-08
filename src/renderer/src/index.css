@@ -423,32 +423,58 @@ h1, h2, h3, h4, h5, h6 {
 }
 .timeline-clip {
   position: absolute;
-  top: 4px;
   height: 36px;
   background: var(--bg-secondary);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
-  padding: 0 var(--sp-2);
-  font-size: var(--fs-xs);
-  color: var(--text-primary);
-  user-select: none;
+  padding: 0 4px;
   cursor: grab;
-  box-shadow: var(--shadow-sm);
+  user-select: none;
+  z-index: 5;
+  transition: border-color 0.2s, box-shadow 0.2s;
   overflow: hidden;
-  transition: border-color 0.1s ease, box-shadow 0.1s ease;
 }
+
 .timeline-clip:hover {
-  border-color: var(--text-secondary);
+  border-color: var(--accent-primary);
 }
+
 .timeline-clip.selected {
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 1px var(--accent-primary), var(--shadow-sm);
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.3);
+  z-index: 6;
+}
+
+.clip-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  cursor: ew-resize;
   z-index: 10;
 }
-.timeline-clip:active {
-  cursor: grabbing;
+
+.clip-handle.left {
+  left: 0;
+}
+
+.clip-handle.right {
+  right: 0;
+}
+
+.clip-handle:hover {
+  background: rgba(124, 58, 237, 0.2);
+}
+
+.clip-name {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
 }
 
 .playhead {
@@ -469,6 +495,10 @@ h1, h2, h3, h4, h5, h6 {
   height: 9px;
   background: var(--accent-primary);
   border-radius: 50%;
+}
+
+.context-menu-item:hover {
+  background: rgba(124, 58, 237, 0.2) !important;
 }
 
 .beat-marker {
