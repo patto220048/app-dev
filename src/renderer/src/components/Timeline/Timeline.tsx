@@ -212,6 +212,40 @@ export function Timeline() {
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
           onClick={handleTrackAreaClick}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => {
+            e.preventDefault()
+            const data = e.dataTransfer.getData('application/json')
+            if (!data) return
+            try {
+              const item = JSON.parse(data)
+              if (item.type === 'image') {
+                const rect = tracksAreaRef.current?.getBoundingClientRect()
+                if (!rect) return
+                const mouseX = e.clientX - rect.left + (tracksAreaRef.current?.scrollLeft || 0)
+                const mouseY = e.clientY - rect.top + (tracksAreaRef.current?.scrollTop || 0)
+                
+                const startTime = Math.max(0, mouseX / pixelsPerSecond)
+                const trackHeight = 44
+                const rulerHeight = 24
+                const trackIndex = Math.max(0, Math.min(tracks.length - 1, Math.floor((mouseY - rulerHeight) / trackHeight)))
+
+                useProjectStore.getState().addClip({
+                  id: crypto.randomUUID(),
+                  mediaId: item.id,
+                  trackIndex,
+                  startTime: Math.round(startTime * 20) / 20,
+                  duration: 5,
+                  name: item.name,
+                  speedCurve: { type: 'linear', keyframes: [{ time: 0, value: 1 }, { time: 1, value: 1 }] },
+                  aiStatus: 'idle',
+                  motionType: 'zoomIn'
+                })
+              }
+            } catch (err) {
+              console.error('Drop failed', err)
+            }
+          }}
         >
           {/* Ruler */}
           <div className="timeline-ruler" style={{ width: `${totalWidth}px` }}>
